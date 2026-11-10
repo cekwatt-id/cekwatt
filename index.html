@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CekWatt — Kalkulator Listrik Rumah</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 20px; font-family: Arial, sans-serif;
+  background: #f1f5f9; color: #1e293b;
+}
+.container { max-width: 760px; margin: auto; }
+header {
+  background: #0f766e; color: white; padding: 24px;
+  border-radius: 16px; margin-bottom: 18px;
+}
+header h1 { margin: 0 0 8px; font-size: 25px; }
+header p { margin: 0; line-height: 1.5; opacity: .9; }
+.card {
+  background: white; padding: 20px; border-radius: 14px;
+  margin-bottom: 16px; box-shadow: 0 3px 12px rgba(0,0,0,.05);
+}
+h2 { font-size: 18px; margin: 0 0 16px; }
+label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 7px; }
+select, input {
+  width: 100%; padding: 11px; border: 1px solid #cbd5e1;
+  border-radius: 8px; font-size: 15px; background: white;
+}
+.field { margin-bottom: 14px; }
+.tariff-info {
+  background: #ecfdf5; padding: 12px; border-radius: 8px;
+  color: #065f46; font-size: 14px; line-height: 1.5;
+}
+.appliance {
+  border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: 14px; margin-bottom: 12px;
+}
+.appliance-top {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px; gap: 10px;
+}
+.appliance-top strong { font-size: 15px; }
+.remove {
+  border: 0; background: #fee2e2; color: #b91c1c;
+  padding: 7px 10px; border-radius: 7px; cursor: pointer;
+}
+.appliance-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.appliance-grid label { font-size: 12px; }
+.appliance-grid input { margin-top: 5px; }
+button {
+  cursor: pointer; border: 0; border-radius: 9px;
+  padding: 12px 16px; font-size: 14px; font-weight: bold;
+}
+.add { background: #e0f2fe; color: #075985; width: 100%; }
+.calculate {
+  background: #0f766e; color: white; width: 100%;
+  margin-top: 5px; font-size: 16px;
+}
+.results { display: none; }
+.result-main {
+  background: #f0fdfa; padding: 18px; border-radius: 12px;
+  text-align: center; margin-bottom: 12px;
+}
+.result-main small { color: #475569; }
+.result-main h2 { color: #0f766e; font-size: 29px; margin: 8px 0; }
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.result-box { background: #f8fafc; padding: 14px; border-radius: 10px; }
+.result-box small { color: #64748b; }
+.result-box strong { display: block; margin-top: 6px; font-size: 18px; }
+.note { color: #64748b; font-size: 12px; line-height: 1.6; margin-top: 14px; }
+.ranking-item {
+  padding: 13px 0; border-bottom: 1px solid #e2e8f0;
+}
+.ranking-item:last-child { border-bottom: 0; }
+.ranking-heading {
+  display: flex; justify-content: space-between; gap: 12px;
+  align-items: center; margin-bottom: 8px; font-size: 14px;
+}
+.ranking-heading strong { overflow-wrap: anywhere; }
+.ranking-meta { color: #64748b; font-size: 12px; white-space: nowrap; }
+.bar-track { height: 10px; background: #e2e8f0; border-radius: 20px; overflow: hidden; }
+.bar-fill { height: 100%; background: #0f766e; border-radius: 20px; }
+.ranking-empty { color: #64748b; font-size: 13px; }
+footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 10px; }
+@media(max-width: 520px) {
+  body { padding: 12px; }
+  .appliance-grid { grid-template-columns: 1fr 1fr; }
+  header h1 { font-size: 21px; }
+  .ranking-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <div style="font-size:13px;font-weight:bold;letter-spacing:1.5px;margin-bottom:10px">CEKWATT</div>
+  <h1>⚡ Hitung Listrik Rumahmu</h1>
+  <p>Kenali pemakaian listrik, kendalikan biaya rumah.</p>
+</header>
+
+<section class="card">
+  <h2>1. Golongan Listrik</h2>
+  <div class="field">
+    <label for="tariff">Pilih golongan listrik rumahmu</label>
+    <select id="tariff" onchange="updateTariff()">
+      <option value="415">R-1 / 450 VA (Subsidi)</option>
+      <option value="605">R-1 / 900 VA (Subsidi)</option>
+      <option value="1352">R-1 / 900 VA (Rumah Tangga Mampu)</option>
+      <option value="1444.70">R-1 / 1.300 VA</option>
+      <option value="1444.70">R-1 / 2.200 VA</option>
+      <option value="1699.53">R-2 / 3.500–5.500 VA</option>
+      <option value="1699.53">R-3 / 6.600 VA ke atas</option>
+    </select>
+  </div>
+  <div class="tariff-info">
+    Tarif yang digunakan: <strong id="tariffText">Rp415/kWh</strong><br>
+    Tarif dapat berubah mengikuti ketetapan pemerintah.
+  </div>
+</section>
+
+<section class="card">
+  <h2>2. Daftar Peralatan Elektronik</h2>
+  <div id="appliances"></div>
+  <button class="add" onclick="addAppliance()">＋ Tambah Peralatan</button>
+</section>
+
+<section class="card">
+  <h2>3. Periode Pemakaian</h2>
+  <div class="field">
+    <label for="days">Berapa hari dalam sebulan?</label>
+    <input id="days" type="number" min="1" max="31" value="30">
+  </div>
+  <button class="calculate" onclick="calculate()">Hitung Biaya Listrik</button>
+</section>
+
+<section class="card results" id="results">
+  <h2>Hasil Perhitungan</h2>
+  <div class="result-main">
+    <small>Estimasi biaya listrik per bulan</small>
+    <h2 id="monthlyCost">Rp0</h2>
+    <small id="monthlyKwh">0 kWh per bulan</small>
+  </div>
+  <div class="result-grid">
+    <div class="result-box"><small>Pemakaian per hari</small><strong id="dailyKwh">0 kWh</strong></div>
+    <div class="result-box"><small>Biaya per hari</small><strong id="dailyCost">Rp0</strong></div>
+    <div class="result-box"><small>Total pemakaian bulanan</small><strong id="totalKwh">0 kWh</strong></div>
+    <div class="result-box"><small>Tarif per kWh</small><strong id="usedTariff">Rp0</strong></div>
+  </div>
+</section>
+
+<section class="card results" id="rankingCard">
+  <h2>⚡ Alat Paling Boros Listrik</h2>
+  <p class="note" style="margin-top:-8px">Urutan berdasarkan konsumsi energi selama periode yang dipilih. Persentase menunjukkan bagian pemakaian dari total seluruh alat.</p>
+  <div id="rankingList"></div>
+</section>
+
+<section class="card results" id="detailsCard">
+  <h2>Rincian Pemakaian Setiap Alat</h2>
+  <div id="detailsList"></div>
+  <p class="note">Perhitungan ini merupakan estimasi berdasarkan daya alat dan lama pemakaian yang kamu masukkan. Hasil sebenarnya bisa berbeda karena konsumsi aktual, pola kerja alat, faktor daya, pajak penerangan jalan, biaya administrasi, dan komponen tagihan lainnya.</p>
+</section>
+
+<section class="card results" id="savingCard">
+  <h2>💡 Simulasi Penghematan Listrik</h2>
+  <p class="note" style="margin-top:-8px">Masukkan berapa jam pemakaian yang ingin dikurangi dari setiap alat per hari. Ini hanya simulasi; pemakaian asli tetap bergantung pada kebiasaan rumahmu.</p>
+  <div id="savingInputs"></div>
+  <div class="result-main" style="margin-top:14px">
+    <small>Perkiraan penghematan per bulan</small>
+    <h2 id="monthlySaving">Rp0</h2>
+    <small id="savingKwh">0 kWh dihemat per bulan</small>
+  </div>
+  <div class="result-grid">
+    <div class="result-box"><small>Penghematan per tahun</small><strong id="yearlySaving">Rp0</strong></div>
+    <div class="result-box"><small>Sisa estimasi biaya bulanan</small><strong id="newMonthlyCost">Rp0</strong></div>
+  </div>
+</section>
+
+<footer>CEKWATT · Alat bantu estimasi listrik rumah tangga</footer>
+</div>
+
+<script>
+const presets = [
+  { name: "Lampu LED", watt: 10 },
+  { name: "Televisi LED", watt: 80 },
+  { name: "Kipas Angin", watt: 45 },
+  { name: "Kulkas", watt: 100 },
+  { name: "Rice Cooker", watt: 300 },
+  { name: "Mesin Cuci", watt: 350 },
+  { name: "AC 1/2 PK", watt: 400 },
+  { name: "AC 1 PK", watt: 750 },
+  { name: "Laptop", watt: 65 },
+  { name: "Charger HP", watt: 10 },
+  { name: "Pompa Air", watt: 125 },
+  { name: "Setrika", watt: 350 }
+];
+
+let applianceCount = 0;
+
+function rupiah(value) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency", currency: "IDR", maximumFractionDigits: 0
+  }).format(value);
+}
+
+function updateTariff() {
+  const tariff = Number(document.getElementById("tariff").value);
+  document.getElementById("tariffText").textContent = rupiah(tariff) + "/kWh";
+  if (document.getElementById("savingCard").style.display === "block") updateSavings();
+}
+
+function addAppliance(name = "Lampu LED", watt = 10) {
+  applianceCount++;
+  const id = applianceCount;
+  const div = document.createElement("div");
+  div.className = "appliance";
+  div.id = "appliance-" + id;
+
+  const options = presets.map(item =>
+    `<option value="${item.watt}" ${item.name === name ? "selected" : ""}>${item.name}</option>`
+  ).join("");
+
+  div.innerHTML = `
+    <div class="appliance-top">
+      <strong>Peralatan ${id}</strong>
+      <button class="remove" onclick="removeAppliance(${id})">Hapus</button>
+    </div>
+    <div class="field">
+      <label>Nama peralatan</label>
+      <select onchange="changePreset(this, ${id})">
+        ${options}
+        <option value="custom">Alat lainnya / input sendiri</option>
+      </select>
+    </div>
+    <div class="appliance-grid">
+      <div><label>Daya (Watt)</label><input class="watt" type="number" min="0" value="${watt}"></div>
+      <div><label>Jumlah unit</label><input class="quantity" type="number" min="1" value="1"></div>
+      <div><label>Jam per hari</label><input class="hours" type="number" min="0" max="24" step="0.5" value="5"></div>
+    </div>
+  `;
+  document.getElementById("appliances").appendChild(div);
+}
+
+function changePreset(select, id) {
+  const card = document.getElementById("appliance-" + id);
+  const wattInput = card.querySelector(".watt");
+  if (select.value === "custom") {
+    wattInput.value = "";
+    wattInput.focus();
+  } else {
+    wattInput.value = select.value;
+  }
+}
+
+function removeAppliance(id) {
+  const card = document.getElementById("appliance-" + id);
+  if (card) card.remove();
+}
+
+function updateSavings() {
+  const tariff = Number(document.getElementById("tariff").value);
+  const days = Number(document.getElementById("days").value);
+  let savedKwh = 0;
+
+  document.querySelectorAll(".reduce-hours").forEach(input => {
+    const maxHours = Number(input.dataset.originalHours);
+    let reducedHours = Number(input.value);
+    if (!Number.isFinite(reducedHours) || reducedHours < 0) reducedHours = 0;
+    if (reducedHours > maxHours) {
+      reducedHours = maxHours;
+      input.value = maxHours;
+    }
+    const watt = Number(input.dataset.watt);
+    const quantity = Number(input.dataset.quantity);
+    savedKwh += (watt * quantity * reducedHours / 1000) * days;
+  });
+
+  const savedRupiah = savedKwh * tariff;
+  const originalCost = Number(
+    (document.getElementById("monthlyCost").textContent || "0")
+      .replace(/[^0-9]/g, "")
+  );
+
+  document.getElementById("monthlySaving").textContent = rupiah(savedRupiah);
+  document.getElementById("savingKwh").textContent = savedKwh.toFixed(2) + " kWh dihemat per bulan";
+  document.getElementById("yearlySaving").textContent = rupiah(savedRupiah * 12);
+  document.getElementById("newMonthlyCost").textContent = rupiah(Math.max(0, originalCost - savedRupiah));
+}
+
+function calculate() {
+  const cards = document.querySelectorAll(".appliance");
+  const days = Number(document.getElementById("days").value);
+  const tariff = Number(document.getElementById("tariff").value);
+
+  if (cards.length === 0) {
+    alert("Tambahkan minimal satu peralatan terlebih dahulu.");
+    return;
+  }
+  if (!days || days < 1 || days > 31) {
+    alert("Masukkan jumlah hari antara 1 sampai 31.");
+    return;
+  }
+
+  const items = [];
+  let dailyKwh = 0;
+
+  for (const card of cards) {
+    const select = card.querySelector("select");
+    const selectedText = select.options[select.selectedIndex].text;
+    const name = selectedText.includes("input sendiri") ? "Alat lainnya" : selectedText;
+    const watt = Number(card.querySelector(".watt").value);
+    const quantity = Number(card.querySelector(".quantity").value);
+    const hours = Number(card.querySelector(".hours").value);
+
+    if (
+      !Number.isFinite(watt) || watt <= 0 ||
+      !Number.isFinite(quantity) || quantity < 1 ||
+      !Number.isFinite(hours) || hours < 0 || hours > 24
+    ) {
+      alert("Periksa kembali Watt, jumlah unit, dan jam pemakaian setiap alat.");
+      return;
+    }
+
+    const perDay = (watt * quantity * hours) / 1000;
+    const perPeriod = perDay * days;
+    dailyKwh += perDay;
+    items.push({ name, watt, quantity, hours, perDay, perPeriod, cost: perPeriod * tariff });
+  }
+
+  const monthlyKwh = dailyKwh * days;
+  const dailyCost = dailyKwh * tariff;
+  const monthlyCost = monthlyKwh * tariff;
+
+  document.getElementById("dailyKwh").textContent = dailyKwh.toFixed(2) + " kWh";
+  document.getElementById("dailyCost").textContent = rupiah(dailyCost);
+  document.getElementById("monthlyKwh").textContent = monthlyKwh.toFixed(2) + " kWh dalam " + days + " hari";
+  document.getElementById("monthlyCost").textContent = rupiah(monthlyCost);
+  document.getElementById("totalKwh").textContent = monthlyKwh.toFixed(2) + " kWh";
+  document.getElementById("usedTariff").textContent = rupiah(tariff);
+
+  // Ranking terbesar ke terkecil berdasarkan konsumsi kWh.
+  const sorted = [...items].sort((a, b) => b.perPeriod - a.perPeriod);
+  const rankingHTML = sorted.map((item, index) => {
+    const percent = monthlyKwh > 0 ? (item.perPeriod / monthlyKwh) * 100 : 0;
+    return `
+      <div class="ranking-item">
+        <div class="ranking-heading">
+          <strong>${index + 1}. ${item.name} (${item.quantity} unit)</strong>
+          <span class="ranking-meta">${item.perPeriod.toFixed(2)} kWh · ${percent.toFixed(1)}%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100, percent)}%"></div></div>
+      </div>`;
+  }).join("");
+  document.getElementById("rankingList").innerHTML =
+    rankingHTML || '<p class="ranking-empty">Belum ada data.</p>';
+
+  const detailsHTML = sorted.map(item => `
+    <div class="ranking-item">
+      <div class="ranking-heading">
+        <strong>${item.name}</strong>
+        <strong>${rupiah(item.cost)}</strong>
+      </div>
+      <span class="ranking-meta">${item.watt} W × ${item.quantity} unit × ${item.hours} jam/hari · ${item.perPeriod.toFixed(2)} kWh</span>
+    </div>
+  `).join("");
+  document.getElementById("detailsList").innerHTML = detailsHTML;
+
+  // Buat kontrol pengurangan jam untuk setiap peralatan.
+  const savingInputsHTML = items.map((item, index) => `
+    <div class="ranking-item">
+      <div class="ranking-heading">
+        <strong>${item.name} (${item.quantity} unit)</strong>
+        <span class="ranking-meta">Awalnya ${item.hours} jam/hari</span>
+      </div>
+      <label for="reduce-${index}">Kurangi pemakaian (jam per hari)</label>
+      <input id="reduce-${index}" class="reduce-hours" type="number"
+        min="0" max="${item.hours}" step="0.5" value="0"
+        data-watt="${item.watt}" data-quantity="${item.quantity}"
+        data-original-hours="${item.hours}" aria-label="Pengurangan jam ${item.name}">
+    </div>
+  `).join("");
+  document.getElementById("savingInputs").innerHTML = savingInputsHTML;
+  document.querySelectorAll(".reduce-hours").forEach(input => {
+    input.addEventListener("input", updateSavings);
+  });
+  updateSavings();
+
+  document.getElementById("results").style.display = "block";
+  document.getElementById("rankingCard").style.display = "block";
+  document.getElementById("detailsCard").style.display = "block";
+  document.getElementById("savingCard").style.display = "block";
+  document.getElementById("results").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+addAppliance("Lampu LED", 10);
+addAppliance("Televisi LED", 80);
+addAppliance("Kipas Angin", 45);
+updateTariff();
+</script>
+</body>
+</html>
