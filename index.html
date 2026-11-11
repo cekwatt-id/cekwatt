@@ -335,9 +335,17 @@ function calculate() {
     const watt = Number(card.querySelector(".watt").value);
     const quantity = Number(card.querySelector(".quantity").value);
     const hours = Number(card.querySelector(".hours").value);
+    const wattInput = card.querySelector(".watt").value.trim();
+const quantityInput = card.querySelector(".quantity").value.trim();
+const hoursInput = card.querySelector(".hours").value.trim();
+
+if (wattInput === "" || quantityInput === "" || hoursInput === "") {
+  alert("Semua kolom Watt, jumlah unit, dan jam pemakaian wajib diisi.");
+  return;
+}
 
     if (
-      !Number.isFinite(watt) || watt <= 0 ||
+      !Number.isFinite(watt) || watt < 0 ||
       !Number.isFinite(quantity) || quantity < 1 ||
       !Number.isFinite(hours) || hours < 0 || hours > 24
     ) {
@@ -349,6 +357,10 @@ function calculate() {
     const perPeriod = perDay * days;
     dailyKwh += perDay;
     items.push({ name, watt, quantity, hours, perDay, perPeriod, cost: perPeriod * tariff });
+  }
+    if (items.every(item => item.watt === 0)) {
+    alert("Minimal satu peralatan harus memiliki daya lebih dari 0 Watt.");
+    return;
   }
 
   const monthlyKwh = dailyKwh * days;
