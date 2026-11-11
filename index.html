@@ -344,14 +344,30 @@ if (wattInput === "" || quantityInput === "" || hoursInput === "") {
   return;
 }
 
-    if (
-      !Number.isFinite(watt) || watt < 0 ||
-      !Number.isFinite(quantity) || quantity < 1 ||
-      !Number.isFinite(hours) || hours < 0 || hours > 24
-    ) {
-      alert("Periksa kembali Watt, jumlah unit, dan jam pemakaian setiap alat.");
-      return;
-    }
+   if (!Number.isFinite(watt) || watt < 0) {
+  alert("Daya Watt harus diisi dan tidak boleh negatif.");
+  return;
+}
+
+if (!Number.isFinite(quantity) || quantity < 1) {
+  alert("Jumlah unit minimal 1.");
+  return;
+}
+
+if (!Number.isInteger(quantity)) {
+  alert("Jumlah unit harus berupa bilangan bulat.");
+  return;
+}
+
+if (!Number.isFinite(hours) || hours < 0) {
+  alert("Jam pemakaian tidak boleh kosong atau negatif.");
+  return;
+}
+
+if (hours > 24) {
+  alert("Maksimal pemakaian 24 jam per hari.");
+  return;
+}
 
     const perDay = (watt * quantity * hours) / 1000;
     const perPeriod = perDay * days;
