@@ -233,7 +233,7 @@ function addAppliance(name = "Lampu LED", watt = 10) {
 
   div.innerHTML = `
     <div class="appliance-top">
-      <strong>Peralatan ${id}</strong>
+      <strong class="appliance-number">Peralatan ${id}</strong>
       <button class="remove" onclick="removeAppliance(${id})">Hapus</button>
     </div>
     <div class="field">
@@ -250,6 +250,7 @@ function addAppliance(name = "Lampu LED", watt = 10) {
     </div>
   `;
   document.getElementById("appliances").appendChild(div);
+  updateApplianceNumbers();
 }
 
 function changePreset(select, id) {
@@ -266,6 +267,18 @@ function changePreset(select, id) {
 function removeAppliance(id) {
   const card = document.getElementById("appliance-" + id);
   if (card) card.remove();
+  updateApplianceNumbers();
+}
+
+function updateApplianceNumbers() {
+  const cards = document.querySelectorAll(".appliance");
+
+  cards.forEach((card, index) => {
+    const number = card.querySelector(".appliance-number");
+    if (number) {
+      number.textContent = "Peralatan " + (index + 1);
+    }
+  });
 }
 
 function updateSavings() {
