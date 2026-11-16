@@ -112,16 +112,16 @@ footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 10px; }
 
   <h2>1. Golongan Listrik</h2>
   <div class="field">
-    <label for="tariff">Pilih golongan listrik rumahmu</label>
-    <select id="tariff" onchange="updateTariff()">
-      <option value="415">R-1 / 450 VA (Subsidi)</option>
-      <option value="605">R-1 / 900 VA (Subsidi)</option>
-      <option value="1352">R-1 / 900 VA (Rumah Tangga Mampu)</option>
-      <option value="1444.70">R-1 / 1.300 VA</option>
-      <option value="1444.70">R-1 / 2.200 VA</option>
-      <option value="1699.53">R-2 / 3.500–5.500 VA</option>
-      <option value="1699.53">R-3 / 6.600 VA ke atas</option>
-    </select>
+    <label for="tariff">Pilih golongan listrik rumahmu</label> 
+<select id="tariff" onchange="updateTariff()">
+  <option value="415" data-code="450_subsidy">R-1 / 450 VA (Subsidi)</option>
+  <option value="605" data-code="900_subsidy">R-1 / 900 VA (Subsidi)</option>
+  <option value="1352" data-code="900_rtm">R-1 / 900 VA (Rumah Tangga Mampu)</option>
+  <option value="1444.70" data-code="1300">R-1 / 1.300 VA</option>
+  <option value="1444.70" data-code="2200">R-1 / 2.200 VA</option>
+  <option value="1699.53" data-code="3500">R-2 / 3.500–5.500 VA</option>
+  <option value="1699.53" data-code="6600">R-3 / 6.600 VA ke atas</option>
+</select>
   </div>
   <div class="tariff-info">
     Tarif yang digunakan: <strong id="tariffText">Rp415/kWh</strong><br>
