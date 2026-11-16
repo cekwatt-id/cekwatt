@@ -238,11 +238,58 @@ function rupiah(value) {
   }).format(value);
 }
 
+
 function updateTariff() {
-  const tariff = Number(document.getElementById("tariff").value);
-  document.getElementById("tariffText").textContent = rupiah(tariff) + "/kWh";
-  if (document.getElementById("savingCard").style.display === "block") updateSavings();
+  const tariffSelect = document.getElementById("tariff");
+  const selectedOption = tariffSelect.options[tariffSelect.selectedIndex];
+  const code = selectedOption.dataset.code;
+
+  const powerField = document.getElementById("powerField");
+  const powerSelect = document.getElementById("connectedPower");
+  const previousPower = powerSelect.value;
+
+  let powerOptions = [];
+
+  if (code === "3500") {
+    powerOptions = [3500, 4400, 5500];
+  } else if (code === "6600") {
+    powerOptions = [
+      6600, 7700, 10600, 13200, 16500,
+      23000, 33000, 41500, 53000, 66000,
+      82500, 105000, 131000, 147000, 164000, 197000
+    ];
+  }
+
+  powerSelect.innerHTML =
+    '<option value="">Belum tahu / Lewati</option>';
+
+  if (powerOptions.length > 0) {
+    powerField.style.display = "block";
+
+    powerOptions.forEach(power => {
+      const option = document.createElement("option");
+      option.value = power;
+      option.textContent =
+        power.toLocaleString("id-ID") + " VA";
+      powerSelect.appendChild(option);
+    });
+
+    if (powerOptions.includes(Number(previousPower))) {
+      powerSelect.value = previousPower;
+    }
+  } else {
+    powerField.style.display = "none";
+  }
+
+  const tariff = Number(tariffSelect.value);
+  document.getElementById("tariffText").textContent =
+    rupiah(tariff) + "/kWh";
+
+  if (document.getElementById("savingCard").style.display === "block") {
+    updateSavings();
+  }
 }
+
 
 function addAppliance(name = "Lampu LED", watt = 10) {
   applianceCount++;
