@@ -100,6 +100,16 @@ footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 10px; }
 </header>
 
 <section class="card">
+  
+<h2>1. Metode Pembayaran</h2>
+<div class="field">
+  <label for="paymentType">Pilih metode pembayaran listrik</label>
+  <select id="paymentType" onchange="updateTariff()">
+    <option value="prepaid">Prabayar (Token)</option>
+    <option value="postpaid">Pascabayar (Tagihan)</option>
+  </select>
+</div>
+
   <h2>1. Golongan Listrik</h2>
   <div class="field">
     <label for="tariff">Pilih golongan listrik rumahmu</label>
