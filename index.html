@@ -122,6 +122,20 @@ footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 10px; }
   <option value="1699.53" data-code="3500">R-2 / 3.500–5.500 VA</option>
   <option value="1699.53" data-code="6600">R-3 / 6.600 VA ke atas</option>
 </select>
+    
+</div>
+
+<div class="field" id="powerField" style="display: none;">
+  <label for="connectedPower">Daya tersambung (opsional)</label>
+  <select id="connectedPower" onchange="updateTariff()">
+    <option value="">Belum tahu / Lewati</option>
+  </select>
+  <small>
+    Pilih daya sesuai kapasitas listrik rumahmu.
+    Jika dilewati, estimasi rekening minimum tidak dihitung.
+  </small>
+</div>
+
   </div>
   <div class="tariff-info">
     Tarif yang digunakan: <strong id="tariffText">Rp415/kWh</strong><br>
