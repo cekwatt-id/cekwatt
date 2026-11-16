@@ -236,7 +236,20 @@ function rupiah(value) {
   }).format(value);
 }
 
+function calculateElectricityCost(kwh, tariffCode, paymentType, connectedPower) {
+  // Normalisasi konsumsi menjadi estimasi 30 hari
+  const monthlyKwh = kwh;
 
+  // Hasil sementara untuk menampung rincian biaya
+  return {
+    monthlyKwh,
+    energyCost: 0,
+    loadCost: 0,
+    minimumBill: 0,
+    totalCost: 0,
+    notes: []
+  };
+}
 function updateTariff() {
   const tariffSelect = document.getElementById("tariff");
   const selectedOption = tariffSelect.options[tariffSelect.selectedIndex];
