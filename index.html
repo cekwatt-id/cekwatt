@@ -163,6 +163,7 @@ footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 10px; }
     <h2 id="monthlyCost">Rp0</h2>
     <small id="monthlyKwh">0 kWh per bulan</small>
   </div>
+  <div id="calculationNotes"></div>
   <div class="result-grid">
     <div class="result-box"><small>Pemakaian per hari</small><strong id="dailyKwh">0 kWh</strong></div>
     <div class="result-box"><small>Biaya per hari</small><strong id="dailyCost">Rp0</strong></div>
@@ -592,7 +593,8 @@ const costResult = calculateElectricityCost(
   paymentType,
   connectedPower
 );
-
+document.getElementById("calculationNotes").textContent =
+  costResult.notes.join(" ");
 const monthlyCost = costResult.totalCost;
 const dailyCost = monthlyCost / 30;
 items.forEach(item => {
