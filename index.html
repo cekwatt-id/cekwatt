@@ -235,21 +235,127 @@ function rupiah(value) {
     style: "currency", currency: "IDR", maximumFractionDigits: 0
   }).format(value);
 }
+const electricityTariffs = {
+  "450_subsidy": {
+    prepaidRate: 415,
+    loadCostPerKva: 11000,
+    postpaidBlocks: [
+      { limit: 30, rate: 169 },
+      { limit: 60, rate: 360 },
+      { limit: Infinity, rate: 495 }
+    ]
+  },
 
+  "900_subsidy": {
+    prepaidRate: 605,
+    loadCostPerKva: 20000,
+    postpaidBlocks: [
+      { limit: 20, rate: 275 },
+      { limit: 60, rate: 445 },
+      { limit: Infinity, rate: 495 }
+    ]
+  },
+
+  "900_rtm": {
+    prepaidRate: 1352,
+    postpaidRate: 1352,
+    minimumBill: true
+  },
+
+  "1300": {
+    prepaidRate: 1444.70,
+    postpaidRate: 1444.70,
+    minimumBill: true
+  },
+
+  "2200": {
+    prepaidRate: 1444.70,
+    postpaidRate: 1444.70,
+    minimumBill: true
+  },
+
+  "3500": {
+    prepaidRate: 1699.53,
+    postpaidRate: 1699.53,
+    minimumBill: true
+  },
+
+  "6600": {
+    prepaidRate: 1699.53,
+    postpaidRate: 1699.53,
+    minimumBill: true
+  }
+};
 function calculateElectricityCost(periodKwh, days, tariffCode, paymentType, connectedPower) {
   // Normalisasi konsumsi menjadi estimasi 30 hari
   const monthlyKwh = days > 0
     ? (periodKwh / days) * 30
     : 0;
+const tariff = electricityTariffs[tariffCode];
 
+if (!tariff) {
   return {
     monthlyKwh,
     energyCost: 0,
     loadCost: 0,
     minimumBill: 0,
     totalCost: 0,
-    notes: []
+    notes: ["Data tarif tidak ditemukan."]
   };
+}
+  let energyCost = 0;
+let loadCost = 0;
+let minimumBill = 0;
+const notes = [];
+
+if (paymentType === "prepaid") {
+  energyCost = monthlyKwh * tariff.prepaidRate;
+}
+
+else if (paymentType === "postpaid") {
+
+  if (tariff.postpaidBlocks) {
+    let remainingKwh = monthlyKwh;
+    let previousLimit = 0;
+
+    for (const block of tariff.postpaidBlocks) {
+      const blockCapacity = block.limit - previousLimit;
+      const usedKwh = Math.min(remainingKwh, blockCapacity);
+
+      energyCost += usedKwh * block.rate;
+      remainingKwh -= usedKwh;
+      previousLimit = block.limit;
+
+      if (remainingKwh <= 0) break;
+    }
+  }
+else if (typeof tariff.postpaidRate === "number") {
+  energyCost = monthlyKwh * tariff.postpaidRate;
+}
+  if (tariff.minimumBill && connectedPower > 0) {
+  minimumBill = 40 * (connectedPower / 1000) * tariff.postpaidRate;
+}
+  else if (tariff.minimumBill) {
+  notes.push("Daya tersambung belum dipilih. Rekening Minimum belum dihitung.");
+}
+  if (tariff.loadCostPerKva) {
+  const powerVA = tariffCode === "450_subsidy" ? 450 : 900;
+
+  loadCost = tariff.loadCostPerKva * (powerVA / 1000);
+}
+}
+const totalCost = paymentType === "postpaid" && tariff.minimumBill
+  ? Math.max(energyCost, minimumBill)
+  : energyCost + loadCost;
+
+return {
+  monthlyKwh,
+  energyCost,
+  loadCost,
+  minimumBill,
+  totalCost,
+  notes
+};
 }
 function updateTariff() {
   const tariffSelect = document.getElementById("tariff");
@@ -402,7 +508,14 @@ function calculate() {
   const cards = document.querySelectorAll(".appliance");
   const days = Number(document.getElementById("days").value);
   const tariff = Number(document.getElementById("tariff").value);
+const tariffCode = document.getElementById("tariff")
+  .selectedOptions[0].dataset.code;
 
+const paymentType = document.getElementById("paymentType").value;
+
+const connectedPower = Number(
+  document.getElementById("connectedPower").value
+);
   if (cards.length === 0) {
     alert("Tambahkan minimal satu peralatan terlebih dahulu.");
     return;
@@ -459,7 +572,7 @@ if (hours > 24) {
     const perDay = (watt * quantity * hours) / 1000;
     const perPeriod = perDay * days;
     dailyKwh += perDay;
-    items.push({ name, watt, quantity, hours, perDay, perPeriod, cost: perPeriod * tariff });
+    items.push({ name, watt, quantity, hours, perDay, perPeriod, cost: 0 });
   }
     if (items.every(item => item.watt === 0)) {
     alert("Minimal satu peralatan harus memiliki daya lebih dari 0 Watt.");
@@ -472,9 +585,20 @@ const monthlyKwh = days > 0
   ? (periodKwh / days) * 30
   : 0;
 
-const dailyCost = dailyKwh * tariff;
-const monthlyCost = monthlyKwh * tariff;
+const costResult = calculateElectricityCost(
+  periodKwh,
+  days,
+  tariffCode,
+  paymentType,
+  connectedPower
+);
 
+const monthlyCost = costResult.totalCost;
+const dailyCost = monthlyCost / 30;
+items.forEach(item => {
+  const share = periodKwh > 0 ? item.perPeriod / periodKwh : 0;
+  item.cost = monthlyCost * share;
+});
   document.getElementById("dailyKwh").textContent = dailyKwh.toFixed(2) + " kWh";
   document.getElementById("dailyCost").textContent = rupiah(dailyCost);
   document.getElementById("monthlyKwh").textContent = periodKwh.toFixed(2) + " kWh dalam " + days + " hari";
@@ -502,7 +626,7 @@ const monthlyCost = monthlyKwh * tariff;
     <div class="ranking-item">
       <div class="ranking-heading">
         <strong>${item.name}</strong>
-        <strong>${rupiah(item.cost)}</strong>
+        <strong>${rupiah(item.cost)} / 30 hari</strong>
       </div>
       <span class="ranking-meta">${item.watt} W × ${item.quantity} unit × ${item.hours} jam/hari · ${item.perPeriod.toFixed(2)} kWh</span>
     </div>
