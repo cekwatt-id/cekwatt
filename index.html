@@ -603,8 +603,10 @@ const costResult = calculateElectricityCost(
   paymentType,
   connectedPower
 );
-document.getElementById("calculationNotes").textContent =
-  costResult.notes.join(" ");
+const notesElement = document.getElementById("calculationNotes");
+
+notesElement.textContent = costResult.notes.join(" ");
+notesElement.style.display = costResult.notes.length > 0 ? "block" : "none";
 const monthlyCost = costResult.totalCost;
 const dailyCost = monthlyCost / 30;
 items.forEach(item => {
