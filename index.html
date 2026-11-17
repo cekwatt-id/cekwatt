@@ -393,7 +393,7 @@ const savedRupiah = savedMonthlyKwh * tariff;
   );
 
   document.getElementById("monthlySaving").textContent = rupiah(savedRupiah);
-  document.getElementById("savingKwh").textContent = savedMontlyKwh.toFixed(2) + " kWh dihemat per bulan";
+  document.getElementById("savingKwh").textContent = savedMonthlyKwh.toFixed(2) + " kWh dihemat per bulan";
   document.getElementById("yearlySaving").textContent = rupiah(savedRupiah * 12);
   document.getElementById("newMonthlyCost").textContent = rupiah(Math.max(0, originalCost - savedRupiah));
 }
