@@ -382,14 +382,18 @@ function updateSavings() {
     savedKwh += (watt * quantity * reducedHours / 1000) * days;
   });
 
-  const savedRupiah = savedKwh * tariff;
+  const savedMonthlyKwh = days > 0
+  ? (savedKwh / days) * 30
+  : 0;
+
+const savedRupiah = savedMonthlyKwh * tariff;
   const originalCost = Number(
     (document.getElementById("monthlyCost").textContent || "0")
       .replace(/[^0-9]/g, "")
   );
 
   document.getElementById("monthlySaving").textContent = rupiah(savedRupiah);
-  document.getElementById("savingKwh").textContent = savedKwh.toFixed(2) + " kWh dihemat per bulan";
+  document.getElementById("savingKwh").textContent = savedMontlyKwh.toFixed(2) + " kWh dihemat per bulan";
   document.getElementById("yearlySaving").textContent = rupiah(savedRupiah * 12);
   document.getElementById("newMonthlyCost").textContent = rupiah(Math.max(0, originalCost - savedRupiah));
 }
@@ -462,13 +466,18 @@ if (hours > 24) {
     return;
   }
 
-  const monthlyKwh = dailyKwh * days;
-  const dailyCost = dailyKwh * tariff;
-  const monthlyCost = monthlyKwh * tariff;
+ const periodKwh = dailyKwh * days;
+
+const monthlyKwh = days > 0
+  ? (periodKwh / days) * 30
+  : 0;
+
+const dailyCost = dailyKwh * tariff;
+const monthlyCost = monthlyKwh * tariff;
 
   document.getElementById("dailyKwh").textContent = dailyKwh.toFixed(2) + " kWh";
   document.getElementById("dailyCost").textContent = rupiah(dailyCost);
-  document.getElementById("monthlyKwh").textContent = monthlyKwh.toFixed(2) + " kWh dalam " + days + " hari";
+  document.getElementById("monthlyKwh").textContent = periodKwh.toFixed(2) + " kWh dalam " + days + " hari";
   document.getElementById("monthlyCost").textContent = rupiah(monthlyCost);
   document.getElementById("totalKwh").textContent = monthlyKwh.toFixed(2) + " kWh";
   document.getElementById("usedTariff").textContent = rupiah(tariff);
@@ -476,7 +485,7 @@ if (hours > 24) {
   // Ranking terbesar ke terkecil berdasarkan konsumsi kWh.
   const sorted = [...items].sort((a, b) => b.perPeriod - a.perPeriod);
   const rankingHTML = sorted.map((item, index) => {
-    const percent = monthlyKwh > 0 ? (item.perPeriod / monthlyKwh) * 100 : 0;
+ const percent = periodKwh > 0 ? (item.perPeriod / periodKwh) * 100 : 0;
     return `
       <div class="ranking-item">
         <div class="ranking-heading">
