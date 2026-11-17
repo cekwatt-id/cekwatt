@@ -251,9 +251,6 @@ function calculateElectricityCost(periodKwh, days, tariffCode, paymentType, conn
     notes: []
   };
 }
-  const testCost = calculateElectricityCost(60, 15, "1300", "postpaid", 1300);
-
-console.log(testCost);
 function updateTariff() {
   const tariffSelect = document.getElementById("tariff");
   const selectedOption = tariffSelect.options[tariffSelect.selectedIndex];
