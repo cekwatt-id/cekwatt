@@ -321,6 +321,10 @@ const notes = [];
 
 if (paymentType === "prepaid") {
   energyCost = monthlyKwh * tariff.prepaidRate;
+
+  if (tariff.minimumBill && !connectedPower) {
+    notes.push("Daya tersambung belum dipilih. Estimasi biaya energi tetap dihitung berdasarkan konsumsi listrik.");
+  }
 }
 
 else if (paymentType === "postpaid") {
