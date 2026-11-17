@@ -236,11 +236,12 @@ function rupiah(value) {
   }).format(value);
 }
 
-function calculateElectricityCost(kwh, tariffCode, paymentType, connectedPower) {
+function calculateElectricityCost(periodKwh, days, tariffCode, paymentType, connectedPower) {
   // Normalisasi konsumsi menjadi estimasi 30 hari
-  const monthlyKwh = kwh;
+  const monthlyKwh = days > 0
+    ? (periodKwh / days) * 30
+    : 0;
 
-  // Hasil sementara untuk menampung rincian biaya
   return {
     monthlyKwh,
     energyCost: 0,
@@ -250,6 +251,9 @@ function calculateElectricityCost(kwh, tariffCode, paymentType, connectedPower) 
     notes: []
   };
 }
+  const testCost = calculateElectricityCost(60, 15, "1300", "postpaid", 1300);
+
+console.log(testCost);
 function updateTariff() {
   const tariffSelect = document.getElementById("tariff");
   const selectedOption = tariffSelect.options[tariffSelect.selectedIndex];
