@@ -68,6 +68,16 @@ button {
 .result-box { background: #f8fafc; padding: 14px; border-radius: 10px; }
 .result-box small { color: #64748b; }
 .result-box strong { display: block; margin-top: 6px; font-size: 18px; }
+  .calculation-notes {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
 .note { color: #64748b; font-size: 12px; line-height: 1.6; margin-top: 14px; }
 .ranking-item {
   padding: 13px 0; border-bottom: 1px solid #e2e8f0;
@@ -163,7 +173,7 @@ footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 10px; }
     <h2 id="monthlyCost">Rp0</h2>
     <small id="monthlyKwh">0 kWh per bulan</small>
   </div>
-  <div id="calculationNotes"></div>
+  <div id="calculationNotes" class="calculation-notes"></div>
   <div class="result-grid">
     <div class="result-box"><small>Pemakaian per hari</small><strong id="dailyKwh">0 kWh</strong></div>
     <div class="result-box"><small>Biaya per hari</small><strong id="dailyCost">Rp0</strong></div>
