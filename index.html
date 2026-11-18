@@ -668,8 +668,10 @@ if (isRMApplicable && connectedPower > 0) {
   document.getElementById("minimumBillDetail").textContent =
     rupiah(costResult.minimumBill);
 
-  document.getElementById("rmBasis").textContent =
-    "RM dihitung berdasarkan daya tersambung dan jam nyala minimum.";
+ const minimumKwh = 40 * (connectedPower / 1000);
+
+document.getElementById("rmBasis").textContent =
+  `Dasar perhitungan: 40 jam × ${(connectedPower / 1000).toLocaleString("id-ID")} kVA = ${minimumKwh.toLocaleString("id-ID")} kWh ekuivalen.`;
 } else {
   rmDetails.style.display = "none";
 }
