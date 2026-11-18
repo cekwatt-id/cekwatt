@@ -99,6 +99,33 @@ footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 10px; }
   header h1 { font-size: 21px; }
   .ranking-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
 }
+  #rmDetails {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px;
+  margin: 12px 0;
+}
+
+#rmDetails > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+#rmDetails > div:last-of-type {
+  margin-bottom: 8px;
+}
+
+#rmDetails small {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
 </style>
 </head>
 <body>
@@ -175,6 +202,17 @@ footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 10px; }
     <small id="monthlyKwh">0 kWh per bulan</small>
   </div>
   <div id="calculationNotes" class="calculation-notes"></div>
+  <div id="rmDetails" style="display: none;">
+  <div>
+    <span>Biaya energi</span>
+    <strong id="energyCostDetail">Rp0</strong>
+  </div>
+  <div>
+    <span>Rekening Minimum</span>
+    <strong id="minimumBillDetail">Rp0</strong>
+  </div>
+  <small id="rmBasis"></small>
+</div>
   <div class="result-grid">
     <div class="result-box"><small>Pemakaian per hari</small><strong id="dailyKwh">0 kWh</strong></div>
     <div class="result-box"><small>Biaya per hari</small><strong id="dailyCost">Rp0</strong></div>
@@ -616,6 +654,25 @@ notesElement.textContent = costResult.notes.join(" ");
 notesElement.style.display = costResult.notes.length > 0 ? "block" : "none";
 const monthlyCost = costResult.totalCost;
 const dailyCost = monthlyCost / 30;
+  const rmDetails = document.getElementById("rmDetails");
+const isRMApplicable =
+  paymentType === "postpaid" &&
+  electricityTariffs[tariffCode]?.minimumBill;
+
+if (isRMApplicable && connectedPower > 0) {
+  rmDetails.style.display = "block";
+
+  document.getElementById("energyCostDetail").textContent =
+    rupiah(costResult.energyCost);
+
+  document.getElementById("minimumBillDetail").textContent =
+    rupiah(costResult.minimumBill);
+
+  document.getElementById("rmBasis").textContent =
+    "RM dihitung berdasarkan daya tersambung dan jam nyala minimum.";
+} else {
+  rmDetails.style.display = "none";
+}
 items.forEach(item => {
   const share = periodKwh > 0 ? item.perPeriod / periodKwh : 0;
   item.cost = monthlyCost * share;
