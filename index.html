@@ -569,8 +569,18 @@ const tariffCode = document.getElementById("tariff")
 
 const paymentType = document.getElementById("paymentType").value;
 
-const connectedPower = Number(
+const selectedConnectedPower = Number(
   document.getElementById("connectedPower").value
+);
+
+const fixedConnectedPower = {
+  "900_rtm": 900,
+  "1300": 1300,
+  "2200": 2200
+};
+
+const connectedPower =
+  fixedConnectedPower[tariffCode] ?? selectedConnectedPower;
 );
   if (cards.length === 0) {
     alert("Tambahkan minimal satu peralatan terlebih dahulu.");
