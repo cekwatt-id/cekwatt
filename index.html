@@ -213,6 +213,16 @@ footer { text-align: center; color: #94a3b8; font-size: 12px; padding: 10px; }
   </div>
   <small id="rmBasis"></small>
 </div>
+  <div id="loadCostDetails" style="display: none;">
+  <div>
+    <span>Biaya energi</span>
+    <strong id="energyCostLoadDetail">Rp0</strong>
+  </div>
+  <div>
+    <span>Biaya beban</span>
+    <strong id="loadCostDetail">Rp0</strong>
+  </div>
+</div>
   <div class="result-grid">
     <div class="result-box"><small>Pemakaian per hari</small><strong id="dailyKwh">0 kWh</strong></div>
     <div class="result-box"><small>Biaya per hari</small><strong id="dailyCost">Rp0</strong></div>
@@ -664,6 +674,10 @@ notesElement.style.display = costResult.notes.length > 0 ? "block" : "none";
 const monthlyCost = costResult.totalCost;
 const dailyCost = monthlyCost / 30;
   const rmDetails = document.getElementById("rmDetails");
+  const loadCostDetails = document.getElementById("loadCostDetails");
+const isLoadCostApplicable =
+  paymentType === "postpaid" &&
+  electricityTariffs[tariffCode]?.loadCostPerKva;
 const isRMApplicable =
   paymentType === "postpaid" &&
   electricityTariffs[tariffCode]?.minimumBill;
@@ -683,6 +697,17 @@ document.getElementById("rmBasis").textContent =
   `Dasar perhitungan: 40 jam × ${(connectedPower / 1000).toLocaleString("id-ID")} kVA = ${minimumKwh.toLocaleString("id-ID")} kWh ekuivalen.`;
 } else {
   rmDetails.style.display = "none";
+}
+  if (isLoadCostApplicable) {
+  loadCostDetails.style.display = "block";
+
+  document.getElementById("energyCostLoadDetail").textContent =
+    rupiah(costResult.energyCost);
+
+  document.getElementById("loadCostDetail").textContent =
+    rupiah(costResult.loadCost);
+} else {
+  loadCostDetails.style.display = "none";
 }
 items.forEach(item => {
   const share = periodKwh > 0 ? item.perPeriod / periodKwh : 0;
