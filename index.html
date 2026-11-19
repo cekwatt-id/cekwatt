@@ -718,7 +718,13 @@ items.forEach(item => {
   document.getElementById("monthlyKwh").textContent = periodKwh.toFixed(2) + " kWh dalam " + days + " hari";
   document.getElementById("monthlyCost").textContent = rupiah(monthlyCost);
   document.getElementById("totalKwh").textContent = monthlyKwh.toFixed(2) + " kWh";
-  document.getElementById("usedTariff").textContent = rupiah(tariff);
+  const tariffLabel = document.getElementById("usedTariff");
+
+if (paymentType === "postpaid" && electricityTariffs[tariffCode]?.postpaidBlocks) {
+  tariffLabel.textContent = "Tarif progresif";
+} else {
+  tariffLabel.textContent = rupiah(tariff) + "/kWh";
+}
 
   // Ranking terbesar ke terkecil berdasarkan konsumsi kWh.
   const sorted = [...items].sort((a, b) => b.perPeriod - a.perPeriod);
