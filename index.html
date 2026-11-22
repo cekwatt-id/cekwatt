@@ -1,4 +1,4 @@
-<!DOCTYPE html
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <!-- Google tag (gtag.js) -->
@@ -501,9 +501,30 @@ function addAppliance(name = "Lampu LED", watt = 10) {
       <strong class="appliance-number">Peralatan ${id}</strong>
       <button class="remove" onclick="removeAppliance(${id})">Hapus</button>
     </div>
-    <div class="field">
-      <label>Nama peralatan</label>
-      <select onchange="changePreset(this, ${id})">
+   
+<div class="field">
+  <label for="nama-${id}">Nama peralatan</label>
+  <select id="nama-${id}" onchange="changePreset(this, ${id})">
+    ${options}
+    <option value="custom">Alat lainnya / input sendiri</option>
+  </select>
+</div>
+
+<div class="appliance-grid">
+  <div>
+    <label for="watt-${id}">Daya (Watt)</label>
+    <input id="watt-${id}" class="watt" type="number" min="0" value="${watt}">
+  </div>
+  <div>
+    <label for="quantity-${id}">Jumlah unit</label>
+    <input id="quantity-${id}" class="quantity" type="number" min="1" value="1">
+  </div>
+  <div>
+    <label for="hours-${id}">Jam per hari</label>
+    <input id="hours-${id}" class="hours" type="number" min="0" max="24" step="0.5" value="5">
+  </div>
+</div>
+
         ${options}
         <option value="custom">Alat lainnya / input sendiri</option>
       </select>
