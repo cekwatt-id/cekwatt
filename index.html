@@ -190,7 +190,7 @@ footer { text-align: center; color: #475569; font-size: 12px; padding: 10px; }
 </section>
 
 <section class="card">
-  <h2>2. Daftar Peralatan Elektronik</h2>
+  <h2>3. Daftar Peralatan Elektronik</h2>
   <div id="appliances"></div>
   <button class="add" onclick="addAppliance()">＋ Tambah Peralatan</button>
 </section>
@@ -889,7 +889,7 @@ const savingInputsHTML = items.map((item, index) => `
     <div class="ranking-heading">
       <strong>${item.name} (${item.quantity} unit)</strong>
       <span class="ranking-meta">
-        Durasi awal ${item.hours} jam ${item.minutes} menit per penggunaan
+        Durasi awal ${item.minutes} menit ${item.hours} jam per penggunaan
       </span>
     </div>
 
