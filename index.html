@@ -589,9 +589,15 @@ function updateApplianceNumbers() {
   });
 }
 
-
 function updateSavings() {
-  const tariff = Number(document.getElementById("tariff").value);
+  const savingContainer = document.getElementById("savingInputs");
+
+  const tariffCode = savingContainer.dataset.tariffCode;
+  const paymentType = savingContainer.dataset.paymentType;
+  const connectedPower = Number(savingContainer.dataset.connectedPower);
+  const originalKwh = Number(savingContainer.dataset.originalKwh);
+  const originalCost = Number(savingContainer.dataset.originalCost);
+
   let savedMonthlyKwh = 0;
 
   document.querySelectorAll(".saving-item").forEach(item => {
@@ -618,8 +624,7 @@ function updateSavings() {
       reducedMinutes = 59;
     }
 
-    let totalReducedMinutes =
-      (reducedHours * 60) + reducedMinutes;
+    let totalReducedMinutes = (reducedHours * 60) + reducedMinutes;
 
     if (totalReducedMinutes > originalMinutes) {
       totalReducedMinutes = originalMinutes;
@@ -629,26 +634,27 @@ function updateSavings() {
     minutesInput.value = totalReducedMinutes % 60;
 
     const remainingMinutes = originalMinutes - totalReducedMinutes;
+    const remainingHours = Math.floor(remainingMinutes / 60);
+    const remainingMinutePart = remainingMinutes % 60;
 
-const remainingHours = Math.floor(remainingMinutes / 60);
-const remainingMinutePart = remainingMinutes % 60;
-
-const remainingDurationElement =
-  item.querySelector(".remaining-duration");
-
-remainingDurationElement.textContent =
-  `Sisa durasi: ${remainingMinutePart} menit ${remainingHours} jam per penggunaan`;
+    item.querySelector(".remaining-duration").textContent =
+      `Sisa durasi: ${remainingMinutePart} menit ${remainingHours} jam per penggunaan`;
 
     savedMonthlyKwh +=
       (watt * quantity * (totalReducedMinutes / 60) * monthlyUses) / 1000;
   });
 
-  const savedRupiah = savedMonthlyKwh * tariff;
+  const newMonthlyKwh = Math.max(0, originalKwh - savedMonthlyKwh);
 
-  const originalCost = Number(
-    (document.getElementById("monthlyCost").textContent || "0")
-      .replace(/[^0-9]/g, "")
+  const newCostResult = calculateElectricityCost(
+    newMonthlyKwh,
+    tariffCode,
+    paymentType,
+    connectedPower
   );
+
+  const newCost = newCostResult.totalCost;
+  const savedRupiah = Math.max(0, originalCost - newCost);
 
   document.getElementById("monthlySaving").textContent =
     rupiah(savedRupiah);
@@ -660,8 +666,9 @@ remainingDurationElement.textContent =
     rupiah(savedRupiah * 12);
 
   document.getElementById("newMonthlyCost").textContent =
-    rupiah(Math.max(0, originalCost - savedRupiah));
+    rupiah(newCost);
 }
+
 
 function calculate() {
 const cards = document.querySelectorAll(".appliance");
@@ -789,6 +796,7 @@ if (select.value === "custom") {
     minutes,
     frequency,
     frequencyPeriod,
+    monthlyUses,
     durationHours,
     perDay,
     perPeriod,
@@ -916,7 +924,7 @@ const savingInputsHTML = items.map((item, index) => `
   <div class="ranking-item saving-item"
     data-watt="${item.watt}"
     data-quantity="${item.quantity}"
-    data-monthly-uses="${item.perPeriod > 0 ? item.perPeriod / ((item.watt * item.quantity * item.durationHours) / 1000) : 0}"
+    data-monthly-uses="${item.monthlyUses}"
     data-original-minutes="${item.hours * 60 + item.minutes}">
 
     <div class="ranking-heading">
@@ -947,7 +955,13 @@ const savingInputsHTML = items.map((item, index) => `
 `).join("");
 
 document.getElementById("savingInputs").innerHTML = savingInputsHTML;
+const savingContainer = document.getElementById("savingInputs");
 
+savingContainer.dataset.tariffCode = tariffCode;
+savingContainer.dataset.paymentType = paymentType;
+savingContainer.dataset.connectedPower = connectedPower;
+savingContainer.dataset.originalKwh = periodKwh;
+savingContainer.dataset.originalCost = monthlyCost;
 document.querySelectorAll(".reduce-hours, .reduce-minutes")
   .forEach(input => {
     input.addEventListener("input", updateSavings);
