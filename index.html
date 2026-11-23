@@ -630,6 +630,17 @@ function updateSavings() {
     hoursInput.value = Math.floor(totalReducedMinutes / 60);
     minutesInput.value = totalReducedMinutes % 60;
 
+    const remainingMinutes = originalMinutes - totalReducedMinutes;
+
+const remainingHours = Math.floor(remainingMinutes / 60);
+const remainingMinutePart = remainingMinutes % 60;
+
+const remainingDurationElement =
+  item.querySelector(".remaining-duration");
+
+remainingDurationElement.textContent =
+  `Sisa durasi: ${remainingMinutePart} menit ${remainingHours} jam per penggunaan`;
+
     savedMonthlyKwh +=
       (watt * quantity * (totalReducedMinutes / 60) * monthlyUses) / 1000;
   });
@@ -917,7 +928,11 @@ const savingInputsHTML = items.map((item, index) => `
         Durasi awal ${item.minutes} menit ${item.hours} jam per penggunaan
       </span>
     </div>
-
+<div class="saving-duration-result">
+  <small class="remaining-duration">
+    Sisa durasi: ${item.minutes} menit ${item.hours} jam
+  </small>
+</div>
     <label for="reduce-minutes-${index}">
   Kurangi menit per penggunaan
 </label>
