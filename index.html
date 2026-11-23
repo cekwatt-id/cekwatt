@@ -158,7 +158,7 @@ footer { text-align: center; color: #475569; font-size: 12px; padding: 10px; }
   </select>
 </div>
 
-  <h2>1. Golongan Listrik</h2>
+  <h2>2. Golongan Listrik</h2>
   <div class="field">
     <label for="tariff">Pilih golongan listrik rumahmu</label> 
 <select id="tariff" onchange="updateTariff()">
@@ -254,7 +254,7 @@ footer { text-align: center; color: #475569; font-size: 12px; padding: 10px; }
 
 <section class="card results" id="savingCard">
   <h2>💡 Simulasi Penghematan Listrik</h2>
-  <p class="note" style="margin-top:-8px">Masukkan berapa jam pemakaian yang ingin dikurangi dari setiap alat per hari. Ini hanya simulasi; pemakaian asli tetap bergantung pada kebiasaan rumahmu.</p>
+  <p class="note" style="margin-top:-8px">Masukkan berapa menit dan jam pemakaian yang ingin dikurangi dari setiap alat pada setiap penggunaan. Ini hanya simulasi; pemakaian asli tetap bergantung pada kebiasaan rumahmu.</p>
   <div id="savingInputs"></div>
   <div class="result-main" style="margin-top:14px">
     <small>Perkiraan penghematan per bulan</small>
@@ -863,7 +863,7 @@ const detailsHTML = sorted.map(item => `
 
     <span class="ranking-meta">
       ${item.watt} W × ${item.quantity} unit ×
-      ${item.hours} jam ${item.minutes} menit ×
+      ${item.minutes} menit ${item.hours} jam ×
       ${item.frequency} kali ${item.frequencyPeriod === "day"
         ? "per hari"
         : item.frequencyPeriod === "week"
@@ -893,19 +893,19 @@ const savingInputsHTML = items.map((item, index) => `
       </span>
     </div>
 
-    <label for="reduce-hours-${index}">
-      Kurangi jam per penggunaan
-    </label>
-    <input id="reduce-hours-${index}"
-      class="reduce-hours"
-      type="number" min="0" step="1" value="0">
-
     <label for="reduce-minutes-${index}">
-      Kurangi menit per penggunaan
-    </label>
-    <input id="reduce-minutes-${index}"
-      class="reduce-minutes"
-      type="number" min="0" max="59" step="1" value="0">
+  Kurangi menit per penggunaan
+</label>
+<input id="reduce-minutes-${index}"
+  class="reduce-minutes"
+  type="number" min="0" max="59" step="1" value="0">
+
+<label for="reduce-hours-${index}">
+  Kurangi jam per penggunaan
+</label>
+<input id="reduce-hours-${index}"
+  class="reduce-hours"
+  type="number" min="0" step="1" value="0">
   </div>
 `).join("");
 
