@@ -506,6 +506,15 @@ function addAppliance(name = "Lampu LED", watt = 10) {
         <option value="custom">Alat lainnya / input sendiri</option>
       </select>
     </div>
+    <div class="field custom-name-field" id="custom-name-${id}" style="display: none;">
+  <label for="custom-name-input-${id}">Tulis nama peralatan</label>
+  <input
+    id="custom-name-input-${id}"
+    class="custom-name"
+    type="text"
+    placeholder="Contoh: Blender"
+  >
+</div>
 
     <div class="appliance-grid">
       <div>
@@ -548,14 +557,19 @@ function addAppliance(name = "Lampu LED", watt = 10) {
   updateApplianceNumbers();
 }
 
-
 function changePreset(select, id) {
   const card = document.getElementById("appliance-" + id);
   const wattInput = card.querySelector(".watt");
+  const customNameField = card.querySelector(".custom-name-field");
+  const customNameInput = card.querySelector(".custom-name");
+
   if (select.value === "custom") {
+    customNameField.style.display = "block";
     wattInput.value = "";
-    wattInput.focus();
+    customNameInput.focus();
   } else {
+    customNameField.style.display = "none";
+    customNameInput.value = "";
     wattInput.value = select.value;
   }
 }
@@ -669,12 +683,23 @@ const connectedPower =
   let dailyKwh = 0;
 
 
-for (const card of cards) {
-  const select = card.querySelector("select");
-  const selectedText = select.options[select.selectedIndex].text;
-  const name = selectedText.includes("input sendiri")
-    ? "Alat lainnya"
-    : selectedText;
+const select = card.querySelector("select");
+const selectedText = select.options[select.selectedIndex].text;
+
+let name;
+
+if (select.value === "custom") {
+  const customNameInput = card.querySelector(".custom-name");
+  name = customNameInput.value.trim();
+
+  if (name === "") {
+    alert("Nama peralatan lainnya wajib diisi.");
+    customNameInput.focus();
+    return;
+  }
+} else {
+  name = selectedText;
+}
 
   const wattInput = card.querySelector(".watt").value.trim();
   const quantityInput = card.querySelector(".quantity").value.trim();
