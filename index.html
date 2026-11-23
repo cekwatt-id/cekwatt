@@ -196,11 +196,6 @@ footer { text-align: center; color: #475569; font-size: 12px; padding: 10px; }
 </section>
 
 <section class="card">
-  <h2>3. Periode Pemakaian</h2>
-  <div class="field">
-    <label for="days">Berapa hari dalam sebulan?</label>
-    <input id="days" type="number" min="1" max="31" value="30">
-  </div>
   <button class="calculate" onclick="calculate()">Hitung Biaya Listrik</button>
 </section>
 
@@ -582,44 +577,72 @@ function updateApplianceNumbers() {
   });
 }
 
+
 function updateSavings() {
   const tariff = Number(document.getElementById("tariff").value);
-  const days = Number(document.getElementById("days").value);
-  let savedKwh = 0;
+  let savedMonthlyKwh = 0;
 
-  document.querySelectorAll(".reduce-hours").forEach(input => {
-    const maxHours = Number(input.dataset.originalHours);
-    let reducedHours = Number(input.value);
-    if (!Number.isFinite(reducedHours) || reducedHours < 0) reducedHours = 0;
-    if (reducedHours > maxHours) {
-      reducedHours = maxHours;
-      input.value = maxHours;
+  document.querySelectorAll(".saving-item").forEach(item => {
+    const originalMinutes = Number(item.dataset.originalMinutes);
+    const watt = Number(item.dataset.watt);
+    const quantity = Number(item.dataset.quantity);
+    const monthlyUses = Number(item.dataset.monthlyUses);
+
+    const hoursInput = item.querySelector(".reduce-hours");
+    const minutesInput = item.querySelector(".reduce-minutes");
+
+    let reducedHours = Number(hoursInput.value);
+    let reducedMinutes = Number(minutesInput.value);
+
+    if (!Number.isInteger(reducedHours) || reducedHours < 0) {
+      reducedHours = 0;
     }
-    const watt = Number(input.dataset.watt);
-    const quantity = Number(input.dataset.quantity);
-    savedKwh += (watt * quantity * reducedHours / 1000) * days;
+
+    if (!Number.isInteger(reducedMinutes) || reducedMinutes < 0) {
+      reducedMinutes = 0;
+    }
+
+    if (reducedMinutes > 59) {
+      reducedMinutes = 59;
+    }
+
+    let totalReducedMinutes =
+      (reducedHours * 60) + reducedMinutes;
+
+    if (totalReducedMinutes > originalMinutes) {
+      totalReducedMinutes = originalMinutes;
+    }
+
+    hoursInput.value = Math.floor(totalReducedMinutes / 60);
+    minutesInput.value = totalReducedMinutes % 60;
+
+    savedMonthlyKwh +=
+      (watt * quantity * (totalReducedMinutes / 60) * monthlyUses) / 1000;
   });
 
-  const savedMonthlyKwh = days > 0
-  ? (savedKwh / days) * 30
-  : 0;
+  const savedRupiah = savedMonthlyKwh * tariff;
 
-const savedRupiah = savedMonthlyKwh * tariff;
   const originalCost = Number(
     (document.getElementById("monthlyCost").textContent || "0")
       .replace(/[^0-9]/g, "")
   );
 
-  document.getElementById("monthlySaving").textContent = rupiah(savedRupiah);
-  document.getElementById("savingKwh").textContent = savedMonthlyKwh.toFixed(2) + " kWh dihemat per bulan";
-  document.getElementById("yearlySaving").textContent = rupiah(savedRupiah * 12);
-  document.getElementById("newMonthlyCost").textContent = rupiah(Math.max(0, originalCost - savedRupiah));
+  document.getElementById("monthlySaving").textContent =
+    rupiah(savedRupiah);
+
+  document.getElementById("savingKwh").textContent =
+    savedMonthlyKwh.toFixed(2) + " kWh dihemat per bulan";
+
+  document.getElementById("yearlySaving").textContent =
+    rupiah(savedRupiah * 12);
+
+  document.getElementById("newMonthlyCost").textContent =
+    rupiah(Math.max(0, originalCost - savedRupiah));
 }
 
 function calculate() {
-  const cards = document.querySelectorAll(".appliance");
-  const days = Number(document.getElementById("days").value);
-  const tariff = Number(document.getElementById("tariff").value);
+const cards = document.querySelectorAll(".appliance");
+const tariff = Number(document.getElementById("tariff").value);
 const tariffCode = document.getElementById("tariff")
   .selectedOptions[0].dataset.code;
 
@@ -641,74 +664,115 @@ const connectedPower =
     alert("Tambahkan minimal satu peralatan terlebih dahulu.");
     return;
   }
-  if (!days || days < 1 || days > 31) {
-    alert("Masukkan jumlah hari antara 1 sampai 31.");
-    return;
-  }
-
+ 
   const items = [];
   let dailyKwh = 0;
 
-  for (const card of cards) {
-    const select = card.querySelector("select");
-    const selectedText = select.options[select.selectedIndex].text;
-    const name = selectedText.includes("input sendiri") ? "Alat lainnya" : selectedText;
-    const watt = Number(card.querySelector(".watt").value);
-    const quantity = Number(card.querySelector(".quantity").value);
-    const hours = Number(card.querySelector(".hours").value);
-    const wattInput = card.querySelector(".watt").value.trim();
-const quantityInput = card.querySelector(".quantity").value.trim();
-const hoursInput = card.querySelector(".hours").value.trim();
 
-if (wattInput === "" || quantityInput === "" || hoursInput === "") {
-  alert("Semua kolom Watt, jumlah unit, dan jam pemakaian wajib diisi.");
-  return;
-}
+for (const card of cards) {
+  const select = card.querySelector("select");
+  const selectedText = select.options[select.selectedIndex].text;
+  const name = selectedText.includes("input sendiri")
+    ? "Alat lainnya"
+    : selectedText;
 
-   if (!Number.isFinite(watt) || watt < 0) {
-  alert("Daya Watt harus diisi dan tidak boleh negatif.");
-  return;
-}
+  const wattInput = card.querySelector(".watt").value.trim();
+  const quantityInput = card.querySelector(".quantity").value.trim();
+  const hoursInput = card.querySelector(".hours").value.trim();
+  const minutesInput = card.querySelector(".minutes").value.trim();
+  const frequencyInput = card.querySelector(".frequency").value.trim();
 
-if (!Number.isFinite(quantity) || quantity < 1) {
-  alert("Jumlah unit minimal 1.");
-  return;
-}
-
-if (!Number.isInteger(quantity)) {
-  alert("Jumlah unit harus berupa bilangan bulat.");
-  return;
-}
-
-if (!Number.isFinite(hours) || hours < 0) {
-  alert("Jam pemakaian tidak boleh kosong atau negatif.");
-  return;
-}
-
-if (hours > 24) {
-  alert("Maksimal pemakaian 24 jam per hari.");
-  return;
-}
-
-    const perDay = (watt * quantity * hours) / 1000;
-    const perPeriod = perDay * days;
-    dailyKwh += perDay;
-    items.push({ name, watt, quantity, hours, perDay, perPeriod, cost: 0 });
+  if (wattInput === "" || quantityInput === "" || frequencyInput === "") {
+    alert("Kolom Watt, jumlah unit, dan frekuensi wajib diisi.");
+    return;
   }
+
+  const watt = Number(wattInput);
+  const quantity = Number(quantityInput);
+  const hours = hoursInput === "" ? 0 : Number(hoursInput);
+  const minutes = minutesInput === "" ? 0 : Number(minutesInput);
+  const frequency = Number(frequencyInput);
+  const frequencyPeriod = card.querySelector(".frequency-period").value;
+
+  if (!Number.isFinite(watt) || watt < 0) {
+    alert("Daya Watt tidak boleh kosong atau negatif.");
+    return;
+  }
+
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    alert("Jumlah unit harus berupa bilangan bulat minimal 1.");
+    return;
+  }
+
+  if (!Number.isInteger(hours) || hours < 0 || hours > 24) {
+    alert("Jam pemakaian harus berupa bilangan bulat antara 0 sampai 24.");
+    return;
+  }
+
+  if (!Number.isInteger(minutes) || minutes < 0 || minutes > 59) {
+    alert("Menit pemakaian harus berupa bilangan bulat antara 0 sampai 59.");
+    return;
+  }
+
+  if (hours === 0 && minutes === 0) {
+    alert("Durasi pemakaian tidak boleh 0 jam dan 0 menit sekaligus.");
+    return;
+  }
+
+  if (hours === 24 && minutes > 0) {
+    alert("Jika pemakaian 24 jam, menit harus 0.");
+    return;
+  }
+
+  if (!Number.isInteger(frequency) || frequency < 1) {
+    alert("Frekuensi harus berupa bilangan bulat minimal 1.");
+    return;
+  }
+
+  let monthlyUses;
+
+  if (frequencyPeriod === "day") {
+    monthlyUses = frequency * 30;
+  } else if (frequencyPeriod === "week") {
+    monthlyUses = frequency * (30 / 7);
+  } else {
+    monthlyUses = frequency;
+  }
+
+  const durationHours = hours + (minutes / 60);
+  const perPeriod =
+    (watt * quantity * durationHours * monthlyUses) / 1000;
+
+  const perDay = perPeriod / 30;
+
+  dailyKwh += perDay;
+
+  items.push({
+    name,
+    watt,
+    quantity,
+    hours,
+    minutes,
+    frequency,
+    frequencyPeriod,
+    durationHours,
+    perDay,
+    perPeriod,
+    cost: 0
+  });
+}
+
     if (items.every(item => item.watt === 0)) {
     alert("Minimal satu peralatan harus memiliki daya lebih dari 0 Watt.");
     return;
   }
 
- const periodKwh = dailyKwh * days;
-
-const monthlyKwh = days > 0
-  ? (periodKwh / days) * 30
-  : 0;
+const periodKwh = dailyKwh * 30;
+const monthlyKwh = periodKwh;
 
 const costResult = calculateElectricityCost(
   periodKwh,
-  days,
+  30,
   tariffCode,
   paymentType,
   connectedPower
@@ -761,7 +825,8 @@ items.forEach(item => {
 });
   document.getElementById("dailyKwh").textContent = dailyKwh.toFixed(2) + " kWh";
   document.getElementById("dailyCost").textContent = rupiah(dailyCost);
-  document.getElementById("monthlyKwh").textContent = periodKwh.toFixed(2) + " kWh dalam " + days + " hari";
+  document.getElementById("monthlyKwh").textContent =
+  periodKwh.toFixed(2) + " kWh (estimasi 30 hari)";
   document.getElementById("monthlyCost").textContent = rupiah(monthlyCost);
   document.getElementById("totalKwh").textContent = monthlyKwh.toFixed(2) + " kWh";
   const tariffLabel = document.getElementById("usedTariff");
@@ -788,36 +853,70 @@ if (paymentType === "postpaid" && electricityTariffs[tariffCode]?.postpaidBlocks
   document.getElementById("rankingList").innerHTML =
     rankingHTML || '<p class="ranking-empty">Belum ada data.</p>';
 
-  const detailsHTML = sorted.map(item => `
-    <div class="ranking-item">
-      <div class="ranking-heading">
-        <strong>${item.name}</strong>
-        <strong>${rupiah(item.cost)} / 30 hari</strong>
-      </div>
-      <span class="ranking-meta">${item.watt} W × ${item.quantity} unit × ${item.hours} jam/hari · ${item.perPeriod.toFixed(2)} kWh</span>
+ 
+const detailsHTML = sorted.map(item => `
+  <div class="ranking-item">
+    <div class="ranking-heading">
+      <strong>${item.name}</strong>
+      <strong>${rupiah(item.cost)} / 30 hari</strong>
     </div>
-  `).join("");
-  document.getElementById("detailsList").innerHTML = detailsHTML;
+
+    <span class="ranking-meta">
+      ${item.watt} W × ${item.quantity} unit ×
+      ${item.hours} jam ${item.minutes} menit ×
+      ${item.frequency} kali ${item.frequencyPeriod === "day"
+        ? "per hari"
+        : item.frequencyPeriod === "week"
+          ? "per minggu"
+          : "per bulan"}
+      · ${item.perPeriod.toFixed(2)} kWh
+    </span>
+  </div>
+`).join("");
+
+document.getElementById("detailsList").innerHTML = detailsHTML;
+
   
   // Buat kontrol pengurangan jam untuk setiap peralatan.
-  const savingInputsHTML = items.map((item, index) => `
-    <div class="ranking-item">
-      <div class="ranking-heading">
-        <strong>${item.name} (${item.quantity} unit)</strong>
-        <span class="ranking-meta">Awalnya ${item.hours} jam/hari</span>
-      </div>
-      <label for="reduce-${index}">Kurangi pemakaian (jam per hari)</label>
-      <input id="reduce-${index}" class="reduce-hours" type="number"
-        min="0" max="${item.hours}" step="0.5" value="0"
-        data-watt="${item.watt}" data-quantity="${item.quantity}"
-        data-original-hours="${item.hours}" aria-label="Pengurangan jam ${item.name}">
+ 
+const savingInputsHTML = items.map((item, index) => `
+  <div class="ranking-item saving-item"
+    data-watt="${item.watt}"
+    data-quantity="${item.quantity}"
+    data-monthly-uses="${item.perPeriod > 0 ? item.perPeriod / ((item.watt * item.quantity * item.durationHours) / 1000) : 0}"
+    data-original-minutes="${item.hours * 60 + item.minutes}">
+
+    <div class="ranking-heading">
+      <strong>${item.name} (${item.quantity} unit)</strong>
+      <span class="ranking-meta">
+        Durasi awal ${item.hours} jam ${item.minutes} menit per penggunaan
+      </span>
     </div>
-  `).join("");
-  document.getElementById("savingInputs").innerHTML = savingInputsHTML;
-  document.querySelectorAll(".reduce-hours").forEach(input => {
+
+    <label for="reduce-hours-${index}">
+      Kurangi jam per penggunaan
+    </label>
+    <input id="reduce-hours-${index}"
+      class="reduce-hours"
+      type="number" min="0" step="1" value="0">
+
+    <label for="reduce-minutes-${index}">
+      Kurangi menit per penggunaan
+    </label>
+    <input id="reduce-minutes-${index}"
+      class="reduce-minutes"
+      type="number" min="0" max="59" step="1" value="0">
+  </div>
+`).join("");
+
+document.getElementById("savingInputs").innerHTML = savingInputsHTML;
+
+document.querySelectorAll(".reduce-hours, .reduce-minutes")
+  .forEach(input => {
     input.addEventListener("input", updateSavings);
   });
-  updateSavings();
+
+updateSavings();
 
   document.getElementById("results").style.display = "block";
   document.getElementById("rankingCard").style.display = "block";
