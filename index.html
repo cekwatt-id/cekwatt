@@ -355,11 +355,9 @@ const electricityTariffs = {
     minimumBill: true
   }
 };
-function calculateElectricityCost(periodKwh, days, tariffCode, paymentType, connectedPower) {
-  // Normalisasi konsumsi menjadi estimasi 30 hari
-  const monthlyKwh = days > 0
-    ? (periodKwh / days) * 30
-    : 0;
+function calculateElectricityCost(periodKwh, tariffCode, paymentType, connectedPower) {
+  // Konsumsi sudah dinormalisasi menjadi estimasi 30 hari
+  const monthlyKwh = periodKwh;
 const tariff = electricityTariffs[tariffCode];
 
 if (!tariff) {
@@ -808,7 +806,6 @@ const monthlyKwh = periodKwh;
 
 const costResult = calculateElectricityCost(
   periodKwh,
-  30,
   tariffCode,
   paymentType,
   connectedPower
