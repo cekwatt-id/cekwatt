@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://cekwatt-id.github.io/cekwatt/sitemap.xml
+Sitemap: https://cekwatt.web.id/sitemap.xml
