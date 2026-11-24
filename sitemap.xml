@@ -1,24 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-  <url>
-    <loc>https://cekwatt-id.github.io/cekwatt/</loc>
-  </url>
-
-  <url>
-    <loc>https://cekwatt-id.github.io/cekwatt/tentang.html</loc>
-  </url>
-
-  <url>
-    <loc>https://cekwatt-id.github.io/cekwatt/privasi.html</loc>
-  </url>
-
-  <url>
-    <loc>https://cekwatt-id.github.io/cekwatt/biaya-listrik-tv.html</loc>
-  </url>
-
-  <url>
-  <loc>https://cekwatt-id.github.io/cekwatt/biaya-listrik-pompa-air.html</loc>
+<url>
+<loc>https://cekwatt.web.id/</loc>
 </url>
-  
+<url>
+<loc>https://cekwatt.web.id/tentang.html</loc>
+</url>
+<url>
+<loc>https://cekwatt.web.id/privasi.html</loc>
+</url>
+<url>
+<loc>https://cekwatt.web.id/biaya-listrik-tv.html</loc>
+</url>
+<url>
+<loc>https://cekwatt.web.id/biaya-listrik-pompa-air.html</loc>
+</url>
 </urlset>
